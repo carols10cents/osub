@@ -9,8 +9,11 @@ module OSub
     attr_reader :callback_url
     attr_reader :topic_url
 
-    def initialize(callback_url, topic_url, secret = nil)
+    def initialize(callback_url, topic_url, secret = nil, token = nil)
       @tokens = []
+      if token != nil
+        @tokens << token
+      end
 
       secret = "" if secret == nil
       @secret = secret.to_s
@@ -25,22 +28,22 @@ module OSub
     end
 
     # Subscribe to the topic through the given hub.
-    def subscribe(hub_url, token = nil)
+    def subscribe(hub_url, async = false, token = nil)
       if token != nil
         @tokens << token.to_s
       end
-      change_subscription(:subscribe, hub_url, token)
+      change_subscription(:subscribe, hub_url, async, token)
     end
 
     # Unsubscribe to the topic through the given hub.
-    def unsubscribe(hub_url, token = nil)
+    def unsubscribe(hub_url, async = false, token = nil)
       if token != nil
         @tokens << token.to_s
       end
-      change_subscription(:unsubscribe, hub_url, token)
+      change_subscription(:unsubscribe, hub_url, async, token)
     end
 
-    def change_subscription(mode, hub_url, token)
+    def change_subscription(mode, hub_url, async, token)
       hub_uri = URI.parse(hub_url)
 
       req = Net::HTTP::Post.new(hub_uri.request_uri)
